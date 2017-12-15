@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- build xml -->
+
+<project name="megaquiz" 
+         default="main" 
+         description="Движок проекта">
+    <!--
+    <property name="dbname" value="megaquiz" />
+    <property name="dbpass" value="default" />
+    <property name="dbhost" value="localhost" />
+    -->
+    <!--
+    <target name="setenvpass" if="env.DBPASS" unless="dbpass">
+        <property name="dbpass" override="yes" value="${env.DBPASS}" />
+    </target>
+    
+    <target name="setpass" unless="dbpass" depends="setenvpass">
+        <property name="dbpass" override="yes" value="default" />
+    </target>
+    -->
+    <!--
+    <condition property="dbpass" value="default">
+        <not>
+            <isset property="dbpass" />
+        </not>
+    </condition>
+    -->
+    <!--
+    <target name="runfirst"
+            description="Первое задание"/>
+    <target name="runsecond" depends="runfirst"
+            description="Вnорое задание"/>
+    -->
+    <target name="setpass" unless="dbpass">
+        <input message="You don't seem to have set a db password"
+               propertyName="dbpass"
+               defaultValue="default"
+               promptChar=" >" />
+    </target>
+    <target name="main"
+            description="Основное задание"
+            depends="setpass">
+        <!-- 
+        <property name="dbpass" override="yes" value="specific" /> 
+        <echo>database: ${dbname}</echo>
+        <echo>pass: ${dbpass}</echo>
+        <echo>host: ${dbhost}</echo>
+        -->
+        <!--
+        <echo>name: ${phing.project.name}</echo>
+        <echo>base: ${project.basedir}</echo>
+        <echo>home: ${user.home}</echo>
+        <echo>name: ${env.DBPASS}</echo>
+        -->
+        <!--
+        <echo>database: ${dbname}</echo>
+        <echo>pass: ${dbpass}</echo>
+        <echo>host: ${dbhost}</echo>
+        -->
+        <echo>pass: ${dbpass}</echo>
+    </target>
+    <target name="housekeeping" hidden="true">
+        <!-- Вспомогательнsе действиz, не вызываются на прямую -->
+    </target>
+</project>
+

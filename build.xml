@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- build xml -->
+
+<project name="userthing" default="build">
+    <!--
+    <autoloader autoloaderpath="./vendor/autoload.php" />
+    -->
+    <!--
+    <php expression="include('vendor/autoload.php')"/>
+    -->
+    <property name="build" value="./build" />
+    <property name="src" value="./src" />
+    <property name="version" value="1.1.1" />
+    <property name="baseDir" value="./" />
+    
+    <!--
+    <autoloader autoloaderpath="${baseDir}/vendor/autoload.php" />
+    -->
+    
+    <target name="build">
+        <mkdir dir="${build}" />
+        <copy todir="${build}/userthing">
+            <fileset dir="${src}/userthing"></fileset>
+        </copy>
+        
+        <copy todir="${build}/test">
+            <fileset dir="${src}/test"></fileset>
+        </copy>       
+    </target>
+    
+    <target name="test" depends="build">
+        <!--
+        <phpunit pharlocation="/usr/local/bin/phpunit" printsummary="true" >
+            <formatter type="plain" usefile="false" />
+            <batchtest classpath="${build}">
+                <fileset dir="${build}/test">
+                    <include name="**/*Test.php" />
+                </fileset>
+            </batchtest>
+        </phpunit>
+        -->
+        <exec logoutput="true" command="phpunit src/test"></exec>
+    </target>
+    
+    <target name="doc" depends="build">
+        <mkdir dir="${build}/docs" />
+        <exec logoutput="true" executable="vendor/bin/phpdoc" dir="./">
+            <arg line="--directory=./src/userthing --target=docs 
+            --title=userthing --template=abstract" />
+        </exec>
+    </target>
+    
+    <target name="clean">
+        <delete dir="${build}" />
+    </target>
+    
+    <target name="citest" depends="build">
+        <mkdir dir="${build}/reports/coverage" />
+        
+        <coverage-setup database="${build}/reports/coverage.db">
+            <fileset dir="${build}/userthing">
+                <include name="**/*.php"/>
+            </fileset>
+        </coverage-setup>
+            
+        <!-- Не удалось заставить phing увидеть phpunit -->
+        <phpunit haltonfailure="true" haltonerror="true" codecoverage="true">
+            <formatter type="plain" usefile="false" />
+            <formatter type="xml" outfile="testreport.xml" todir="${build}/reports" />
+            <formatter type="clover" outfile="cloverreport.xml" todir="${build}/reports" />
+            <batchtest classpath="${build}">
+                <fileset dir="${build}">
+                    <include name="test/**" />
+                </fileset>
+            </batchtest>
+        </phpunit>
+        
+        <coverage-report outfile="${build}/reports/coverage.xml">
+            <report todir="${build}/reports/coverage" />
+        </coverage-report>
+    </target>
+    
+    <!--
+        Проверяет уровень соответствия кода стандартам оформления
+    -->
+    <target name="sniff" depends="build">
+        <mkdir dir="${build}/reports" />
+        <phpcodesniffer standard="Zend">
+            <fileset dir="${build}/userthing">
+                <include name="**/*.php" />
+            </fileset>
+            <formatter type="checkstyle" outfile="${build}/reports/checkstyle.xml" />
+            <formatter type="default" usefile="false" />
+        </phpcodesniffer>
+    </target>
+    
+    <!--
+        Вызывает ошибку:
+        BUILD FAILED
+        /home/vagrant/Code/userthing/build.xml:95:50: You must have installed 
+        PEAR_PackageFileManager in order to create a PEAR package.xml version 
+        2.0 file.
+    -->
+    <target name="makepackagefile" depends="build">
+        <pearpkg2 bame="userthing" dir="${build}">
+            <option name="packagefile" value="userthing_package.xml" />
+            <option name="packagedirectory" value="%{build}" />
+            <option name="baseinstalldir" value="/" />
+            <option name="channel" value="pear.php.net" />
+            <option name="summary" value="blah blah" />
+            <option name="description" value="blah blah blah blah" />
+            <option name="apiversion" value="1.1.0" />
+            <option name="apistability" value="beta" />
+            <option name="releaseversion" value="${version}" />
+            <option name="releasestability" value="beta" />
+            <option name="license" value="none" />
+            <option name="phpdep" value="5.4.0" />
+            <option name="pearinstallerdep" value="1.4.6" />
+            <option name="packagetype" value="php" />
+            <option name="notes" value="notes notes notes" />
+            <mapping name="maintainers">
+                <element>
+                    <element key="handle" value="mattz" />
+                    <element key="name" value="matt" />
+                    <element key="email" value="matt@getinstance.com" />
+                    <element key="role" value="lead" />
+                </element>
+            </mapping>
+            <fileset dir="${build}">
+                <include name="userthing/**" />
+            </fileset>
+        </pearpkg2>
+    </target>
+    
+    <!--
+        Создает PEAR пакет.
+    -->
+    <target name="buildpackage" depends="makepackagefile">
+        <exec dir="build" checkreturn="true" executable="/usr/bin/pear">
+            <arg value="package" />
+            <arg value="userthing_package.xml" />
+        </exec>
+    </target>
+</project>
+

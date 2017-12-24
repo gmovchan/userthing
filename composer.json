@@ -9,7 +9,8 @@
     ],
     "require": {
         "facebook/webdriver": "^1.5",
-        "phing/phing": "^2.16"
+        "phing/phing": "^2.16",
+        "squizlabs/php_codesniffer": "*"
     },
     "require-dev": {
         "phpdocumentor/phpdocumentor": "2.*",
